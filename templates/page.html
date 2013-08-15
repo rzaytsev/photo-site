@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Фото сайт</title>
+    <meta charset="utf-8">
+</head>
+<body>
+
+{% for gallery in gals %}
+    <p>
+        <strong>{{ gallery['name'].decode('utf-8') }}</strong><br>
+        Описание: <i>{{ gallery['description'].decode('utf-8') }}</i><br><br>
+        {% for photo in gallery['photos'] %}
+            <img width="200px" src="{{ photo }} ">
+        {% endfor %}
+    </p>
+    <hr>
+{% endfor %}
+
+
+</body>
+</html>
