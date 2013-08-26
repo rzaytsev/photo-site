@@ -4,19 +4,33 @@
 <head>
     <title>Фото сайт</title>
     <meta charset="utf-8">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript" src="../static/instantedit.js"></script>
+    <link rel='stylesheet' href='../static/slidershock/css/slider_multiple.css' />
 </head>
+
 <body>
+
 
 {% for gallery in gals %}
     <p>
-        <strong>{{ gallery['name'].decode('utf-8') }}</strong><br>
-        Описание: <i>{{ gallery['description'].decode('utf-8') }}</i><br><br>
+        {{gallery['id']}}: <strong><span id="name/{{ gallery['id'] }}" class="{{edit}}">{{ gallery['name'].decode('utf-8') }}</span></strong><br>
+        Описание: <i> <span id="description/{{ gallery['id'] }}" class="{{edit}}">{{ gallery['description'].decode('utf-8') }}</span></i><br><br>
+
         {% for photo in gallery['photos'] %}
             <img width="200px" src="{{ photo }} ">
         {% endfor %}
+
+
+
     </p>
     <hr>
 {% endfor %}
+
+-------------------------------------------
+{{msg}}
+
+
 
 
 </body>
