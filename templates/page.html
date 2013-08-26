@@ -18,7 +18,7 @@
         Описание: <i> <span id="description/{{ gallery['id'] }}" class="{{edit}}">{{ gallery['description'].decode('utf-8') }}</span></i><br><br>
 
         {% for photo in gallery['photos'] %}
-            <img width="200px" src="{{ photo }} ">
+            <img width="200px" src="{{ photo }} "><p></p>
         {% endfor %}
 
 

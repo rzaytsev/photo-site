@@ -11,9 +11,36 @@ app.debug = True
 
 photo_dir = 'static/photo/'
 
+
 @app.route('/')
 def start():
-    return render_template('page.html', gals = read_photos_from_disk(), edit='', msg='' )
+    return render_template('index.html', gals = read_photos_from_disk(), edit='', msg='' )
+
+@app.route('/about')
+def about():
+    about_txt = ''
+    f = photo_dir  + 'about.txt'
+    if os.path.exists(f) and os.path.isfile(f):
+        with open(f) as f1:
+            about_txt = f1.read()
+    return render_template('text.html', content =  about_txt )
+
+@app.route('/contacts')
+def contacts():
+    contacts_txt = ''
+    f = photo_dir  + 'contacts.txt'
+    if os.path.exists(f) and os.path.isfile(f):
+        with open(f) as f1:
+            contacts_txt = f1.read()
+    return render_template('text.html', content =  contacts_txt )
+
+@app.route('/works')
+def works():
+    return render_template('index.html', gals = read_photos_from_disk(), edit='', msg='' )
+
+@app.route('/works/<gal_id>')
+def gallery(gal_id):
+    return render_template('index.html', gals = read_photos_from_disk()[gal_id], edit='', msg='' )
 
 @app.route('/admin/<key>')
 def start_admin(key):
@@ -28,7 +55,7 @@ def start_admin(key):
     else:
          error = key + ' != ' + stored_key
 
-    return render_template('page.html', gals = read_photos_from_disk(), edit = editable , msg=error)
+    return render_template('index.html', gals = read_photos_from_disk(), edit = editable , msg=error)
 
 
 
@@ -53,6 +80,8 @@ def read_photos_from_disk():
             gallery['name'] = dir
             gallery['description'] = 'empty'
             gallery['photos'] = []
+            gallery['captions'] = []
+            caption = ''
             for f in os.listdir(photo_dir + dir):
                 gallery_name = r.get('name:'+dir)
                 if gallery_name:
@@ -63,6 +92,11 @@ def read_photos_from_disk():
 
                 if os.path.isfile(photo_dir + dir + '/' + f) and f.endswith(".jpg"):
                     gallery['photos'].append('/' + photo_dir + dir + '/' + f)
+                    caption = r.get('caption:'+ dir+ ':'+ f)
+                    if caption =='':
+                        caption = 'empty caption'
+                    gallery['captions'].append(caption)
+
         if gallery:
              gals.append(gallery)
 
