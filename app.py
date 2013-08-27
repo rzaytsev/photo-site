@@ -17,7 +17,7 @@ photo_dir = 'static/photo/'
 @app.route('/')
 def start():
     editable = ''
-    if session['isAdmin']:
+    if 'isAdmin' in session and session['isAdmin']:
          editable = 'editText'
     return render_template('index.html', gals = read_photos_from_disk(), edit=editable, msg='' )
 
@@ -51,7 +51,7 @@ def works():
 @app.route('/works/<gal_id>')
 def show_gallery(gal_id):
     editable = ''
-    if session['isAdmin']:
+    if 'isAdmin' in session and session['isAdmin']:
          editable = 'editText'
     return render_template('works.html', gal_id = gal_id, gallery_name =get_gallery_name(gal_id) , gallery_description = get_gallery_description(gal_id), photos = read_gallery_from_disk(gal_id), edit=editable, msg='' )
 
@@ -88,9 +88,17 @@ def login():
             error = 'Invalid key'
     # the code below is executed if the request method
     # was GET or the credentials were invalid
-    if session['isAdmin']:
+    if 'isAdmin' in session and session['isAdmin']:
         error = 'Already logged in!'
     return render_template('login.html', error=error)
+
+
+@app.route('/logout')
+def logout():
+    # remove the username from the session if it's there
+    if 'isAdmin' in session and session['isAdmin']:
+        session.pop('isAdmin', None)
+    return redirect(url_for('start'))
 
 
 @app.route('/edit/<type>/<val1>')
