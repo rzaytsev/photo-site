@@ -39,19 +39,19 @@
 <div class="container">
 
 	<header id="navtop">
-		<a href="index" class="logo fleft">
+		<a href="{{ url_for('start') }}" class="logo fleft">
 			<img src="../static/img/logo.png" alt="">
 		</a>
 
 		<nav class="fright">
-			<ul>
-				<li><a href="/" class="navactive">Главная</a></li>
-				<li><a href="about">Обо мне</a></li>
-			</ul>
-			<ul>
-				<li><a href="works">Работы</a></li>
-				<li><a href="contacts">Контакты</a></li>
-			</ul>
+            <ul>
+                <li><a href="{{ url_for('start') }}" class="navactive">Главная</a></li>
+                <li><a href="{{ url_for('about') }}">Обо мне</a></li>
+            </ul>
+            <ul>
+                <li><a href="{{ url_for('works') }}">Работы</a></li>
+                <li><a href="{{ url_for('contacts') }}">Контакты</a></li>
+            </ul>
 
 		</nav>
 	</header>
@@ -115,10 +115,10 @@
 
 		<nav class="grid col-one-third ">
 			<ul>
-				<li><a href="/">Главная</a></li>
-				<li><a href="about">Обо мне</a></li>
-				<li><a href="works">Работы</a></li>
-				<li><a href="contact">Контакты</a></li>
+                <li><a href="{{ url_for('start') }}">Главная</a></li>
+                <li><a href="{{ url_for('about') }}">Обо мне</a></li>
+                <li><a href="{{ url_for('works') }}">Работы</a></li>
+                <li><a href="{{ url_for('contacts') }}">Контакты</a></li>
 			</ul>
 		</nav>
 	</footer>

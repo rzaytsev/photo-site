@@ -1,8 +1,10 @@
 #!/usr/bin/env python
-# coding='utf-8'
+# coding: utf-8
+#
+#
 
 import os
-from flask import Flask, render_template
+from flask import Flask, render_template, url_for, redirect, request, session
 from werkzeug.contrib.fixers import  ProxyFix
 import redis
 
@@ -14,7 +16,14 @@ photo_dir = 'static/photo/'
 
 @app.route('/')
 def start():
-    return render_template('index.html', gals = read_photos_from_disk(), edit='', msg='' )
+    editable = ''
+    if session['isAdmin']:
+         editable = 'editText'
+    return render_template('index.html', gals = read_photos_from_disk(), edit=editable, msg='' )
+
+@app.route('/index')
+def index():
+    return redirect(url_for('start'))
 
 @app.route('/about')
 def about():
@@ -24,6 +33,7 @@ def about():
         with open(f) as f1:
             about_txt = f1.read()
     return render_template('text.html', content =  about_txt )
+
 
 @app.route('/contacts')
 def contacts():
@@ -36,27 +46,51 @@ def contacts():
 
 @app.route('/works')
 def works():
-    return render_template('index.html', gals = read_photos_from_disk(), edit='', msg='' )
+    return redirect(url_for('start'))
 
 @app.route('/works/<gal_id>')
-def gallery(gal_id):
-    return render_template('index.html', gals = read_photos_from_disk()[gal_id], edit='', msg='' )
+def show_gallery(gal_id):
+    editable = ''
+    if session['isAdmin']:
+         editable = 'editText'
+    return render_template('works.html', gal_id = gal_id, gallery_name =get_gallery_name(gal_id) , gallery_description = get_gallery_description(gal_id), photos = read_gallery_from_disk(gal_id), edit=editable, msg='' )
 
-@app.route('/admin/<key>')
-def start_admin(key):
+def get_gallery_name(gal_id):
+    r = redis.StrictRedis(host="localhost", port=6379, db=1)
+    gal_name = r.get('name:'+gal_id)
+    if gal_name:
+        return gal_name
+    else:
+        return gal_id
+
+def get_gallery_description(gal_id):
+    r = redis.StrictRedis(host="localhost", port=6379, db=1)
+    gallery_description = r.get('description:'+gal_id)
+    if gallery_description:
+        return gallery_description
+    else:
+        return gal_id + ' : no description'
+
+
+@app.route('/login', methods=['POST', 'GET'])
+def login():
+    error = ''
     for f in os.listdir(photo_dir):
         if f == 'key.txt':
             with open(photo_dir  + 'key.txt') as f1:
                 stored_key = f1.read().strip()
-    editable ='tt'
-    error = 'ok'
-    if key == stored_key:
-        editable = 'editText'
-    else:
-         error = key + ' != ' + stored_key
 
-    return render_template('index.html', gals = read_photos_from_disk(), edit = editable , msg=error)
-
+    if request.method == 'POST':
+        if stored_key == request.form['key']:
+            session['isAdmin'] = True
+            return redirect(url_for('start'))
+        else:
+            error = 'Invalid key'
+    # the code below is executed if the request method
+    # was GET or the credentials were invalid
+    if session['isAdmin']:
+        error = 'Already logged in!'
+    return render_template('login.html', error=error)
 
 
 @app.route('/edit/<type>/<val1>')
@@ -68,6 +102,22 @@ def edit_comment(type,val1):
     r.set(type + ':' + (val1.split("&")[:-1])[0].strip(), (val1.split("&")[:-1])[1].strip())
     return  (val1.split("&")[:-1])[1].strip()
 
+
+def read_gallery_from_disk(gal_id):
+    r = redis.StrictRedis(host="localhost",port=6379,db=1)
+    photos = []
+    for f in os.listdir(photo_dir + gal_id):
+        if os.path.isfile(photo_dir + gal_id + '/' + f) and f.endswith(".jpg"):
+            photo = {}
+            photo['id'] = '/' + photo_dir + gal_id + '/' + f
+            photo['caption'] = r.get('caption:'+ gal_id+ ':'+ f)
+            if not photo['caption']:
+                photo['caption'] = u'без названия'
+
+            if photo:
+                photos.append(photo)
+
+    return photos
 
 
 def read_photos_from_disk():
@@ -81,7 +131,6 @@ def read_photos_from_disk():
             gallery['description'] = 'empty'
             gallery['photos'] = []
             gallery['captions'] = []
-            caption = ''
             for f in os.listdir(photo_dir + dir):
                 gallery_name = r.get('name:'+dir)
                 if gallery_name:
@@ -92,10 +141,7 @@ def read_photos_from_disk():
 
                 if os.path.isfile(photo_dir + dir + '/' + f) and f.endswith(".jpg"):
                     gallery['photos'].append('/' + photo_dir + dir + '/' + f)
-                    caption = r.get('caption:'+ dir+ ':'+ f)
-                    if caption =='':
-                        caption = 'empty caption'
-                    gallery['captions'].append(caption)
+
 
         if gallery:
              gals.append(gallery)

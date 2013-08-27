@@ -11,17 +11,14 @@
 
 <body>
 
+<h1>{{gal_id}}</h1>
 
-{% for gallery in gals %}
+{% for photo in photos  %}
     <p>
-        {{gallery['id']}}: <strong><span id="name/{{ gallery['id'] }}" class="{{edit}}">{{ gallery['name'].decode('utf-8') }}</span></strong><br>
-        Описание: <i> <span id="description/{{ gallery['id'] }}" class="{{edit}}">{{ gallery['description'].decode('utf-8') }}</span></i><br><br>
-
-        {% for photo in gallery['photos'] %}
-            <img width="200px" src="{{ photo }} "><p></p>
-        {% endfor %}
-
-
+            <img width="200px" src="{{ photo['id'] }} ">
+            <p>
+                {{ photo['caption'] }}
+            </p>
 
     </p>
     <hr>
