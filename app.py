@@ -133,7 +133,7 @@ def read_photos_from_disk():
     gals = []
     for dir in os.listdir(photo_dir):
         gallery = {}
-        if not os.path.isfile(photo_dir + dir):
+        if not os.path.isfile(photo_dir + dir) and dir != '.SyncArchive':
             gallery['id'] = dir
             gallery['name'] = dir
             gallery['description'] = 'empty'
